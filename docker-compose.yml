@@ -1,0 +1,44 @@
+version: "3.5"
+services:
+  app:
+    build:
+      context: ./.docker/php
+      dockerfile: Dockerfile
+    container_name: app
+    working_dir: /var/www
+    networks:
+      - laraveldocker
+    volumes:
+      - ./:/var/www
+      - ./.docker/php/config/general.ini:/usr/local/etc/php/conf.d/local.ini
+
+  webserver:
+    build:
+      context: ./.docker/nginx
+      dockerfile: Dockerfile
+    container_name: webserver
+    networks:
+      - laraveldocker
+    volumes:
+      - ./:/var/www
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+
+  mysql:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    container_name: mysql
+    volumes:
+      - ./storage/data/mysql:/var/lib/mysql
+      - ./.docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - laraveldocker
+    environment:
+      - MYSQL_DATABASE=homestead
+      - MYSQL_USER=homestead
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_PASSWORD=secret
+
+networks:
+  laraveldocker:
+    driver: bridge

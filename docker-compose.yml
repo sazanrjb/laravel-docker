@@ -1,44 +1,63 @@
-version: "3.5"
+version: '3.5'
+
 services:
+  webserver:
+    build:
+      context: ./.docker/nginx
+      dockerfile: Dockerfile
+    container_name: webserver
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./storage/logs/nginx:/var/log/nginx
+    links:
+      - mysql
+
   app:
     build:
       context: ./.docker/php
       dockerfile: Dockerfile
     container_name: app
     working_dir: /var/www
-    networks:
-      - laraveldocker
     volumes:
       - ./:/var/www
       - ./.docker/php/config/general.ini:/usr/local/etc/php/conf.d/local.ini
-
-  webserver:
-    build:
-      context: ./.docker/nginx
-      dockerfile: Dockerfile
-    container_name: webserver
-    networks:
-      - laraveldocker
-    volumes:
-      - ./:/var/www
-      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+    links:
+      - mysql
 
   mysql:
     image: mysql:5.7
-    ports:
-      - 3306:3306
     container_name: mysql
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
-      - ./.docker/mysql/my.cnf:/etc/mysql/my.cnf
-    networks:
-      - laraveldocker
     environment:
       - MYSQL_DATABASE=homestead
       - MYSQL_USER=homestead
-      - MYSQL_ROOT_PASSWORD=secret
       - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=secret
+    restart: always
+    ports:
+      - "3306:3306"
 
-networks:
-  laraveldocker:
-    driver: bridge
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 8080:80
+    depends_on:
+      - mysql
+
+  cli:
+    build:
+      context: ./.docker/cli
+    container_name: cli
+    volumes:
+      - ./:/var/www
+    tty: true
+    links:
+      - mysql

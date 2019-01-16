@@ -1,4 +1,4 @@
-Docker is a container technology which allows shipping developing and shipping application along with all the parts that it needs.
+Docker is a container technology which allows developing and shipping application along with all the parts that it needs.
 
 Here are few things required for a Dockerfile:
 

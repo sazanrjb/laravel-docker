@@ -6,26 +6,28 @@ services:
       context: ./.docker/nginx
       dockerfile: Dockerfile
     container_name: webserver
-    ports:
-      - 80:80
     volumes:
       - ./:/var/www
       - ./.docker/nginx/conf.d:/etc/nginx/conf.d
       - ./storage/logs/nginx:/var/log/nginx
+    ports:
+      - 80:80
     links:
-      - mysql
+      - app
 
   app:
     build:
       context: ./.docker/php
       dockerfile: Dockerfile
     container_name: app
-    working_dir: /var/www
     volumes:
       - ./:/var/www
       - ./.docker/php/config/general.ini:/usr/local/etc/php/conf.d/local.ini
     links:
       - mysql
+    environment:
+      - DB_PORT=3306
+      - DB_HOST=mysql
 
   mysql:
     image: mysql:5.7
@@ -33,13 +35,12 @@ services:
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=homestead
-      - MYSQL_USER=homestead
-      - MYSQL_PASSWORD=secret
-      - MYSQL_ROOT_PASSWORD=secret
-    restart: always
+      - MYSQL_DATABASE=bloodbank
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
     ports:
-      - "3306:3306"
+      - 3306:3306
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

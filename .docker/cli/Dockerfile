@@ -1,6 +1,6 @@
 FROM php:7.2-fpm
 
-ARG DOCKER_USER=bloodbank
+ARG DOCKER_USER=dockeruser
 ARG PUID=1000
 ARG PGID=1000
 
@@ -13,11 +13,11 @@ RUN docker-php-ext-install bcmath pdo_mysql
 
 RUN curl -s http://getcomposer.org/installer | php && \
     mv composer.phar /usr/local/bin/composer
-RUN chown bloodbank:bloodbank /usr/local/bin/composer
+RUN chown dockeruser:dockeruser /usr/local/bin/composer
 
 USER $DOCKER_USER
-RUN mkdir -p /home/bloodbank/.composer/cache && chown bloodbank:bloodbank /home/bloodbank/.composer/cache \
-&& chmod 777 -R /home/bloodbank/.composer
+RUN mkdir -p /home/dockeruser/.composer/cache && chown dockeruser:dockeruser /home/dockeruser/.composer/cache \
+&& chmod 777 -R /home/dockeruser/.composer
 
 RUN echo "export PATH=${PATH}:~/.composer/vendor/bin" >> ~/.bashrc
 

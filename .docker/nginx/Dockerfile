@@ -1,5 +1,3 @@
-FROM nginx:1.13-alpine
+FROM nginx:1.15
 
 WORKDIR /var/www/
-
-EXPOSE 80

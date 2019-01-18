@@ -6,12 +6,12 @@ services:
       context: ./.docker/nginx
       dockerfile: Dockerfile
     container_name: webserver
-    volumes:
-      - ./:/var/www
-      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
-      - ./storage/logs/nginx:/var/log/nginx
     ports:
       - 80:80
+    volumes:
+      - $PROJECT_ROOT:/var/www
+      - ./.docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./storage/logs/nginx:/var/log/nginx
     links:
       - app
 
@@ -20,8 +20,9 @@ services:
       context: ./.docker/php
       dockerfile: Dockerfile
     container_name: app
+    working_dir: /var/www
     volumes:
-      - ./:/var/www
+      - $PROJECT_ROOT:/var/www
       - ./.docker/php/config/general.ini:/usr/local/etc/php/conf.d/local.ini
     links:
       - mysql
@@ -30,15 +31,15 @@ services:
       - DB_HOST=mysql
 
   mysql:
-    image: mysql:5.7
+    image: mysql:$MYSQL_VERSION
     container_name: mysql
     volumes:
       - ./storage/data/mysql:/var/lib/mysql
     environment:
-      - MYSQL_DATABASE=bloodbank
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_USER=$MYSQL_USER
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
     ports:
       - 3306:3306
 
@@ -47,7 +48,7 @@ services:
     container_name: phpmyadmin
     environment:
       PMA_HOST: mysql
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
     ports:
       - 8080:80
     depends_on:
@@ -58,7 +59,7 @@ services:
       context: ./.docker/cli
     container_name: cli
     volumes:
-      - ./:/var/www
+      - $PROJECT_ROOT:/var/www
     tty: true
     links:
       - mysql
